@@ -1,49 +1,38 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import styles from './styles.module.css'
-import * as ethereum from '@/lib/ethereum'
-import * as main from '@/lib/main'
+import styles from './styles.module.css';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Header from './components/Header';
+import Home from './components/Home';
+import Users from './components/Users';
+import Sets from './components/Sets';
+import Cards from './components/Cards';
+import Booster from './components/Booster';
+import Footer from './components/Footer';
 
-type Canceler = () => void
-const useAffect = (
-  asyncEffect: () => Promise<Canceler | void>,
-  dependencies: any[] = []
-) => {
-  const cancelerRef = useRef<Canceler | void>()
-  useEffect(() => {
-    asyncEffect()
-      .then(canceler => (cancelerRef.current = canceler))
-      .catch(error => console.warn('Uncatched error', error))
-    return () => {
-      if (cancelerRef.current) {
-        cancelerRef.current()
-        cancelerRef.current = undefined
-      }
-    }
-  }, dependencies)
-}
-
-const useWallet = () => {
-  const [details, setDetails] = useState<ethereum.Details>()
-  const [contract, setContract] = useState<main.Main>()
-  useAffect(async () => {
-    const details_ = await ethereum.connect('metamask')
-    if (!details_) return
-    setDetails(details_)
-    const contract_ = await main.init(details_)
-    if (!contract_) return
-    setContract(contract_)
-  }, [])
-  return useMemo(() => {
-    if (!details || !contract) return
-    return { details, contract }
-  }, [details, contract])
-}
+import { WalletProvider } from './WalletProvider';
 
 export const App = () => {
-  const wallet = useWallet()
+
   return (
-    <div className={styles.body}>
-      <h1>Welcome to Pokémon TCG</h1>
-    </div>
-  )
-}
+    <Router>
+      <WalletProvider>
+        <Header />  
+        <div className={styles.body}>
+          <h1>Welcome to Pokémon TCG</h1>
+          <Routes>
+            <Route path="/" element={
+             <Home/>
+            } />
+            <Route path="/users" element={<Users />} />
+            <Route path="/sets" element={<Sets />} />
+            <Route path="/cards/:setId" element={<Cards />} />
+            
+            <Route path="/booster" element={<Booster />} />
+          </Routes>
+        </div>
+        <Footer />  
+      </WalletProvider>
+    </Router>
+  );
+};
+
+export default App;
