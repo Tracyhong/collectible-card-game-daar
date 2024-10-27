@@ -1,7 +1,7 @@
 // Home.tsx
 import React from 'react';
 import { useEffect, useState } from 'react';
-import useWallet from '@/useWallet'; 
+import useWallet from '@/wallet/useWallet'; 
 
 const Home: React.FC = () => {
   
@@ -26,7 +26,7 @@ const Home: React.FC = () => {
               return [...existingUsers, usersWallet];
             }
           }
-          return existingUsers; // If nothing to add, return the existing state
+          return existingUsers; 
         });
       }
     } else {
@@ -37,9 +37,7 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     
-    // if (!contract) return alert("Wallet not connected.");
     if (contract && !usersInitialized) {
-      // if(!pokemonSetsInitialized) initializePokemonSets();
       addUser();
     }
   }, [contract]);

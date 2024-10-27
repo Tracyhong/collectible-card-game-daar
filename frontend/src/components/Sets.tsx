@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Spinner } from 'react-bootstrap'; // Import Spinner from react-bootstrap
+import { Card, Spinner } from 'react-bootstrap'; 
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import useWallet from '@/useWallet'; // Using the hook
+import useWallet from '@/wallet/useWallet'; 
 
 interface PokemonSet {
   id: string;
@@ -22,7 +22,7 @@ const Sets: React.FC = () => {
 
   const [pokemonSetsInitialized, setPokemonSetsInitialized] = useState(false);
   const [pokemonSets, setPokemonSets] = useState<PokemonSet[]>([]);
-  const [isLoading, setIsLoading] = useState(true); // New loading state
+  const [isLoading, setIsLoading] = useState(true); 
 
   const initializePokemonSets = async () => {
     try {
@@ -45,7 +45,7 @@ const Sets: React.FC = () => {
     } catch (error) {
       console.error('Error initializing Pokémon sets:', error);
     } finally {
-      setIsLoading(false); // Stop loading when data fetch is complete
+      setIsLoading(false);
     }
   };
 

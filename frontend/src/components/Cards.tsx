@@ -4,7 +4,7 @@ import { Card, Spinner, Modal, Button, Carousel } from 'react-bootstrap';
 import axios from 'axios';
 import { ethers } from 'ethers';
 import Dropdown from 'react-bootstrap/Dropdown';
-import useWallet from '@/useWallet';
+import useWallet from '@/wallet/useWallet';
 
 interface PokemonCard {
   id: string;
@@ -21,13 +21,14 @@ const Cards: React.FC = () => {
   const { details, contract, walletError } = useWallet();
   const { setId } = useParams<{ setId: string }>();
   const [cards, setCards] = useState<PokemonCard[]>([]);
-  const [selectedCards, setSelectedCards] = useState<Set<string>>(new Set()); // Ensemble de cartes sélectionnées
+  const [selectedCards, setSelectedCards] = useState<Set<string>>(new Set()); 
   const [userAddress, setUserAddress] = useState<string>('');
   const [users, setUsers] = useState<string[]>([]);
   const [usersInitialized, setUsersInitialized] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showMintedModal, setShowMintedModal] = useState(false);
   const [mintedCards, setMintedCards] = useState<PokemonCard[]>([]);
+
 
   const initUsers = async () => {
     if (contract) {
@@ -53,9 +54,10 @@ const Cards: React.FC = () => {
   };
 
   const handleRedirectToUserPage = () => {
-    window.location.href = '/users'; // Replace with actual route to user's page
+    window.location.href = '/users';
   };
 
+  // Check if the user address is a valid Ethereum address
   const handleCheckEthereumAddress = (userAddress: string) => {
     return ethers.utils.isAddress(userAddress);
   }
@@ -90,6 +92,7 @@ const Cards: React.FC = () => {
     if (!contract || selectedCards.size === 0) return alert("Wallet not connected or no cards selected.");
 
     const minted = [];
+    let count = 0;
     for (const cardId of selectedCards) {
       try {
         const gasEstimate = await contract.estimateGas.mintNFTCard(userAddress, setId, cardId);
@@ -99,15 +102,23 @@ const Cards: React.FC = () => {
         await tx.wait();
         console.log(`Minting successful for card: ${cardId}`);
         const card = cards.find(card => card.id === cardId);
-        if (card) minted.push(card);
+        if (card){
+          minted.push(card);
+          count++;
+        }
       } catch (error) {
         console.error("Minting failed for card:", cardId, error);
       }
-    }
 
-    setMintedCards(minted);
-    setShowMintedModal(true);
-    setSelectedCards(new Set()); // Reset selected cards
+    }
+    if(count === selectedCards.size){ 
+      setMintedCards(minted);
+      setShowMintedModal(true);
+      setSelectedCards(new Set()); // Reset selected cards
+    }
+    else{
+      return alert("Minting failed for all selected cards.");
+    }
   };
 
   return (
@@ -136,26 +147,13 @@ const Cards: React.FC = () => {
             </Dropdown.Menu>
           </Dropdown>
         </div>
-        {/* <button
-          onClick={mintSelectedCards}
-          className="btn btn-success"
-          disabled={!userAddress || selectedCards.size === 0}
-        >
-          Mint Selected Cards
-        </button> */}
          <div
             className="fixed-top  d-flex justify-content-end" // Make the button fixed at the top
             style={{
-                // top: '70px', // Adjust this value to position it just below the header
-                // right: '20px', // Adjust this value to position it on the right
-                // zIndex: 1030, // Ensure it appears above other elements
-                // padding: '10px', // Add some padding for aesthetics
-                // width: '100%', // Optional: makes the button full width
-                // textAlign: 'center', // Center the button
-                top: '90px', // Adjust this value to position it just below the header
-                right: '30px', // Position it 20px from the right edge
-                zIndex: 1030, // Ensure it appears above other elements
-                padding: '10px', // Add some padding for aesthetics
+                top: '90px',
+                right: '30px',
+                zIndex: 1030,
+                padding: '10px', 
             }}
         >
             <button
@@ -202,29 +200,15 @@ const Cards: React.FC = () => {
         </div>
       )}
 
-
-
-
-
       <Modal show={showMintedModal} onHide={() => setShowMintedModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Mint Successful!</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {/* <p>The following cards have been successfully minted to address:</p>
-          <p><strong>{userAddress}</strong></p>
-          <div className="text-center">
-            {mintedCards.map(card => (
-              <div key={card.id} className="mb-2">
-                <img src={card.images.small} alt={card.name} className="img-fluid mb-1" />
-                <h5>{card.name}</h5>
-              </div>
-            ))}
-          </div> */}
           <Carousel
-    wrap={false} // Prevents wrapping back to the first item
-    prevIcon={<span aria-hidden="true" className="carousel-control-prev-icon" style={{ filter: 'invert(30%)' }} />}
-    nextIcon={<span aria-hidden="true" className="carousel-control-next-icon" style={{ filter: 'invert(30%)' }} />}>
+          wrap={false} // Prevents wrapping back to the first item
+          prevIcon={<span aria-hidden="true" className="carousel-control-prev-icon" style={{ filter: 'invert(30%)' }} />}
+          nextIcon={<span aria-hidden="true" className="carousel-control-next-icon" style={{ filter: 'invert(30%)' }} />}>
 
             {mintedCards.map((card, index) => (
               <Carousel.Item key={index} interval={900}>

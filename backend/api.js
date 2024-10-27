@@ -9,12 +9,11 @@ app.use(cors());
 app.use(express.json());
 
 // Check if necessary environment variables are set
-if (!process.env.RPC_URL || !process.env.PRIVATE_KEY || !process.env.POKEMON_TCG_API_KEY) {
-  console.error('RPC_URL, PRIVATE_KEY, and POKEMON_TCG_API_KEY must be defined');
+if (!process.env.POKEMON_TCG_API_KEY) {
+  console.error('POKEMON_TCG_API_KEY must be defined in a .env file');
   process.exit(1);
 }
 
-// let pokemonSets = [] // Array to store Pokémon sets
 const defaultBoosters = [
     { boosterName: 'Stellar Crown Booster', setId: 'sv7', image: "https://poke-collect.com/cdn/shop/files/scbp.png?v=1722980705" },
     { boosterName: 'Shrouded Fable Booster', setId: 'sv6pt5', image: "https://toysnowman.com/cdn/shop/files/ToySnowman.com1_36d35c58-b22b-49f0-a6de-e867bda01b4e_500x500.png?v=1724428266" },
@@ -54,15 +53,6 @@ async function initPokemonSets(collections) {
   return result;
 }
 
-// async function initializePokemonSets() {
-//   const defaultSets = [
-//     //'sv7', 'sv6pt5',   // HARD CODED SETS
-//     'swsh6', 'sm12' //, 'sm11', 'sm10', 'xy12', 'xy11', 'xy10', 'bw11', 'bw10', 'bw9', base....
-//   ];
-//   for (const setId of defaultSets) {
-//     await addPokemonSet(setId);
-//   }
-// }
 
 async function addPokemonSet(setId) {
   try {
@@ -75,19 +65,9 @@ async function addPokemonSet(setId) {
       }
     )
     const set = response.data.data
-    console.log('add : ' + set.name + ' ' + set.total)
-    // Store the set in the array
-    //check if set exist in pokemon sets
-    // for (let i = 0; i < pokemonSets.length; i++) {
-    //   if (pokemonSets[i].name === set.name) {
-    //     console.log(`Set Pokémon existe déjà: ${set.name}`)
-    //     return
-    //   }
-    // }
-    // pokemonSets.push(set)
     console.log(`Set Pokémon ajouté : ${set.name}`)
     return set
-    // await contract.createCollection(set.name, set.total);
+
   } catch (error) {
     console.error("Erreur lors de l'ajout du set Pokémon:", error)
   }
@@ -97,11 +77,11 @@ app.get('/init-pokemon-sets', async (req, res) => {
   console.log('init-pokemon-sets')
   const collections = req.query.collections.split(',')
   console.log(collections)
+
   try {
     const pokemonSets = await initPokemonSets(collections)
-    // res.json({ success: true, message: 'Sets Pokémon initialisés avec succès' });
-
     res.json(pokemonSets)
+
   } catch (error) {
     console.error("Erreur lors de l'initialisation des sets Pokémon:", error)
     res
@@ -139,6 +119,7 @@ app.get('/set-cards/:setId', async (req, res) => {
   const cards = await getSetCards(setId)
   res.json(cards)
 })
+
 //-------------------- Get user cards --------------------
 async function getCards(cards) {
   let result = []
@@ -172,6 +153,7 @@ app.get('/get-cards', async (req, res) => {
   try {
     userCards = await getCards(cards)
     res.json(userCards)
+
   } catch (error) {
     console.error("Erreur lors de l'initialisation des sets Pokémon:", error)
     res

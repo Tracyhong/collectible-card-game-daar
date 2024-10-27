@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import useWallet from '@/useWallet';
+import useWallet from '@/wallet/useWallet';
 import { Card, Accordion, Container, Spinner } from 'react-bootstrap';
 import axios from 'axios';
 
@@ -19,9 +19,8 @@ interface User {
 const Users: React.FC = () => {
   const { details, contract, walletError } = useWallet();
   const [users, setUsers] = useState<User[]>([]);
-  const [userCards, setUserCards] = useState<{ [key: string]: PokemonCard[] }>({});
   const [usersInitialized, setUsersInitialized] = useState(false);
-  const [isLoading, setIsLoading] = useState(true); // New loading state
+  const [isLoading, setIsLoading] = useState(true); 
 
   const initUsers = async () => {
     if (!contract || usersInitialized) return;
@@ -35,10 +34,10 @@ const Users: React.FC = () => {
 
         const cardsData = await axios.get(`http://localhost:3000/get-cards?cards=${cards}`);
 
-        const uniqueCards = cardsData.data.filter((card: PokemonCard, index: number, self: PokemonCard[]) =>
-          index === self.findIndex((c) => c.id === card.id)
-        );
-        return { address, cards: uniqueCards };
+        // const uniqueCards = cardsData.data.filter((card: PokemonCard, index: number, self: PokemonCard[]) =>
+        //   index === self.findIndex((c) => c.id === card.id)
+        // );
+        return { address, cards: cardsData.data };
       }));
 
       const filteredUsersWithNFTs = usersWithNFTs.filter(Boolean) as User[];

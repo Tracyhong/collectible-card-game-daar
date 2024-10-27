@@ -11,7 +11,7 @@ const Footer = () => {
         >
             <div className="container">
                 <p className="mb-0" style={{ fontSize: '0.80rem', color: '#343a40', lineHeight: '1.2' }}>
-                    &copy; 2024 TCG Pokemon Blockchain
+                    &copy; 2024 Project DAAR 2 - TCG Pokemon Blockchain
                 </p>
                 <p className="mb-0" style={{ fontSize: '0.80rem', color: '#343a40', lineHeight: '1.2' }}>
                     &copy; Tracy HONG & Laura RATTANAVAN

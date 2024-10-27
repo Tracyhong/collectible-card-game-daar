@@ -8,7 +8,7 @@ import Cards from './components/Cards';
 import Booster from './components/Booster';
 import Footer from './components/Footer';
 
-import { WalletProvider } from './WalletProvider';
+import { WalletProvider } from './wallet/WalletProvider';
 
 export const App = () => {
 

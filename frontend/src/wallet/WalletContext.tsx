@@ -1,8 +1,3 @@
-// import { createContext } from 'react';
-
-// const WalletContext = createContext<any>(undefined);
-
-// export default WalletContext;
 import { createContext } from 'react';
 import * as ethereum from '@/lib/ethereum';
 import * as main from '@/lib/main';

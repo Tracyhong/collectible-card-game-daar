@@ -34,22 +34,6 @@ body {
   padding: 20px;
   border-radius: 4px; /* Slightly round the corners of the cells */
 }
-
-/* .fixed-mint-button {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 1000; /* Ensures it stays on top of other elements
-} */
-
-/* .fixed-mint-button {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 1000;
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
-  padding: 10px 20px;
-} */
  
 .fixed-mint-button {
   position: fixed; /* Fixe le bouton par rapport à la fenêtre du navigateur */

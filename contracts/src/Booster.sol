@@ -12,15 +12,15 @@ import "hardhat/console.sol";
 contract Booster is ERC721URIStorage, ERC721Burnable, Ownable {
 
     string public boosterName;
-    string public collectionName;
+    string public collectionName; // Name of the collection the booster belongs to
     
 
-        
     constructor(string memory _boosterName, string memory _collectionName) ERC721(_boosterName, "PKMNFTBOOSTER") Ownable(msg.sender) {
         boosterName = _boosterName;
         collectionName = _collectionName;
     }
 
+    // mint a booster to the user _toUser
     function mintBooster(address _toUser, uint _tokenIDbooster, string memory _tokenURIbooster) external onlyOwner {
         _mint(_toUser, _tokenIDbooster);
         _setTokenURI(_tokenIDbooster, _tokenURIbooster);

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, Modal, Carousel, Button, Spinner } from 'react-bootstrap';
 import axios from 'axios';
 import { ethers } from 'ethers';
-import useWallet from '@/useWallet'; // Using the hook
+import useWallet from '@/wallet/useWallet'; 
 
 interface PokemonBooster {
   boosterName: string;
@@ -26,11 +26,10 @@ const Booster: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [currentBoosterCards, setCurrentBoosterCards] = useState<CardData[]>([]);
   const [boostersNames, setBoostersNames] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false); // New loading state
+  const [loading, setLoading] = useState(false);
+
   // Function to initialize and fetch boosters
   const initBoosters = async (user : string) => {
-
-    setPokemonBoostersInitialized(true);
     try {
       console.log('Init collections for Pokémon boosters...');
       console.log('the user is :', user);
@@ -57,6 +56,7 @@ const Booster: React.FC = () => {
       if (!contract) return alert("Wallet not connected.");
       console.log("Booster:", boosterName, "to user:", user);
   
+      // Estimate gas for mintBooster function
       let gasEstimate = ethers.BigNumber.from(50000);
       try {
         gasEstimate = await contract.estimateGas.mintBooster(user, boosterName);
@@ -65,6 +65,7 @@ const Booster: React.FC = () => {
         alert("Failed to estimate gas. Please check your inputs or wallet.");
       }
   
+      // Increase gas limit by 20% to avoid out-of-gas exceptions
       const gasLimit = gasEstimate.mul(ethers.BigNumber.from(120)).div(ethers.BigNumber.from(100));
       try {
         const tx = await (contract as any).mintBooster(user, boosterName, { gasLimit });
@@ -96,8 +97,6 @@ const Booster: React.FC = () => {
         apiIDCards = res.data;
         console.log('Booster cards:', apiIDCards);      
         console.log('Opening booster:', boosterName + ' for user:', user);
-        // await (contract as any).openBooster(user, apiIDCards, boosterName);
-        // open booster = mint the cards
         const responseGetSetId = await axios.get(`http://localhost:3000/get-setId-booster/${boosterName}`);
         let setId = '';
         if (responseGetSetId.data) {
@@ -107,8 +106,8 @@ const Booster: React.FC = () => {
           const card = apiIDCards[i];
               await mintCard(user, card.id, setId);
         }
-        setCurrentBoosterCards(apiIDCards); // Set cards for display in the carousel
-        setShowModal(true); // Show modal with the booster cards
+        setCurrentBoosterCards(apiIDCards); 
+        setShowModal(true); 
       }
 
     } catch (error) {
@@ -116,7 +115,7 @@ const Booster: React.FC = () => {
     }
     
     await isRedeemable(user,boostersNames);
-    setLoading(false); // Set loading to false after fetching cards
+    setLoading(false); 
   };
 
   const mintCard = async (userAddress: string, cardId: string, setId:string) => {
@@ -131,6 +130,7 @@ const Booster: React.FC = () => {
       alert("Failed to estimate gas. Please check your inputs or wallet.");
     }
 
+    // Increase gas limit by 20% to avoid out-of-gas exceptions
     const gasLimit = gasEstimate.mul(ethers.BigNumber.from(120)).div(ethers.BigNumber.from(100));
     try {
       const tx = await contract.mintNFTCard(userAddress, setId, cardId, { gasLimit });
@@ -149,7 +149,6 @@ const Booster: React.FC = () => {
   const isRedeemable = async (user:string, booster:string[]) => {
     try {
       if (!contract) return alert("Wallet not connected.");
-      // console.log("Booster:", boostersNames, "to user:", user);
       console.log('Checking redeemable boosters for user:', user);
       console.log('Boosters to check:', booster);
       const result = await (contract as any).isRedeemable(user, booster);
@@ -183,7 +182,7 @@ const Booster: React.FC = () => {
   };
 
   const handleRedirectToUserPage = () => {
-    window.location.href = '/users'; // Replace with actual route to user's page
+    window.location.href = '/users'; 
   };
 
   useEffect(() => {
@@ -193,14 +192,15 @@ const Booster: React.FC = () => {
         setUser(user);
         
         initBoosters(user);
-        // isRedeemable(user);
       }
     }
     if(pokemonBoostersInitialized && user && boostersNames.length > 0) {
+       
+      setUser(user);
       isRedeemable(user,boostersNames);
     }
-    console.log('------------------Redeemable boosters:-----------------------', redeemable);
-  }, [details, contract, pokemonBoostersInitialized,boostersNames]);
+
+  }, [details, contract, user, pokemonBoostersInitialized,boostersNames]);
 
   return (
     
@@ -228,9 +228,8 @@ const Booster: React.FC = () => {
           <div
             className="col-sm-6 col-md-4 col-lg-3 d-flex justify-content-center mb-4"
             key={booster.boosterName}
-            // style={{ cursor: 'pointer' }}
-            style={{ cursor: redeemable[index] ? 'pointer' : 'not-allowed' }} // Change cursor based on redeemable status
-            onClick={() => handleBoosterClick(booster.boosterName, redeemable[index])} // Pass redeemable statusredeemable[index]
+            style={{ cursor: redeemable[index] ? 'pointer' : 'not-allowed' }} 
+            onClick={() => handleBoosterClick(booster.boosterName, redeemable[index])}
           >
             <Card
               style={{
@@ -241,15 +240,11 @@ const Booster: React.FC = () => {
                 transition: 'transform 0.2s, box-shadow 0.2s',
                 filter: redeemable[index] ? 'none' : 'grayscale(100%)', // Apply grayscale filter if not redeemable
               }}
-              className={`hover-card ${!redeemable[index] ? 'disabled-card' : ''}`} // Add a class to handle hover styles
-              // className="hover-card"
+              className={`hover-card ${!redeemable[index] ? 'disabled-card' : ''}`} 
             >
               <Card.Img variant="top" src={booster.image} />
               <Card.Body className="text-center">
                 <Card.Title>{booster.boosterName}</Card.Title>
-                {/* <Button variant="primary" disabled={!redeemable[index]} onClick={() => handleBoosterClick(booster.boosterName, redeemable[index])}>
-                  Redeem
-                </Button> */}
               </Card.Body>
             </Card>
           </div>
@@ -268,7 +263,6 @@ const Booster: React.FC = () => {
               <Carousel.Item key={index}>
                 <img className="d-block w-100" src={card.images.small} alt={card.name}  style={{ maxHeight: '400px', objectFit: 'contain' }}/>
                 <Carousel.Caption>
-                  {/* <h3>{card.name}</h3> */}
                 </Carousel.Caption>
               </Carousel.Item>
             ))}
